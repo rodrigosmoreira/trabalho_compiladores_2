@@ -114,7 +114,7 @@ int valid_last_type(int type, int qtdParentesesAberto)
 
     if(type != SYM_COMMAND && type != SYM_FLOAT && type != SYM_INTEGER) {
         printf("erro: faltou encerrar a expressão com um numero ou comando\n");
-        return -1;<3><enter><5><+><3><enter><5><+>
+        return -1;
     }
 
     return type;
