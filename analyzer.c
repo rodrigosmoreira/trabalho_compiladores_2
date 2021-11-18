@@ -1,4 +1,4 @@
-#include "lexical_analyzer.h"
+#include "analyzer.h"
 #include "token.h"
 #include <stdio.h>
 #include <string.h>
@@ -7,11 +7,12 @@ bool analyse(const char *expression)
 {
     int type = -2;
     int previous_type = -2;
-    bool parentesesAberto = false;
+    int qtdParentesesAberto = 0;
     char aux[(int)(strlen(expression) / sizeof(char)) + 1];
     char symbol[(int)(strlen(expression) / sizeof(char)) + 1];
     strcpy(aux, expression);
     strcpy(symbol, "");
+    bool valido = true;
 
     do
     {
@@ -19,23 +20,31 @@ bool analyse(const char *expression)
             return true;
 
         previous_type = type;
-        type = get_type(aux, symbol, previous_type, parentesesAberto);
 
+        printf("%s ", symbol);
+
+        type = get_type(aux, symbol, previous_type, qtdParentesesAberto);
         print_type(symbol, type);
 
         if(type == SYM_PARENTESES)
-            parentesesAberto = strncasecmp("(", symbol, strlen(symbol)) == 0;
-    } while ((int)(strlen(aux) / sizeof(char)) > 0 && type != SYM_ERRO);
+            qtdParentesesAberto += strncasecmp("(", symbol, strlen(symbol)) == 0 ? 1 : -1;
 
-    type = valid_last_type(type);
+        if(type == SYM_ERRO)
+            valido = false;
+    } while ((int)(strlen(aux) / sizeof(char)) > 0);
 
-    return type != SYM_ERRO;
+    type = valid_last_type(type, qtdParentesesAberto);
+
+    if(type == SYM_ERRO) {
+        valido = false;
+    }
+
+    return valido;
 }
 
 // Imprime o simbolo e o tipo correspondente
 void print_type(char symbol[], int type)
 {
-    printf("%s ", symbol);
 
     switch (type)
     {
@@ -57,18 +66,16 @@ void print_type(char symbol[], int type)
         case SYM_PARENTESES:
             printf("=> parenteses\n");
             break;
-        case SYM_ERRO:
-            printf("=> erro\n");;
     }
 }
 
 
 // retorna o tipo correspondente ao simbolo atual
-int get_type(char *expression, char symbol[], int previous_type, bool parentesesAberto)
+int get_type(char *expression, char symbol[], int previous_type, int qtdParentesesAberto)
 {
     int type = check_type(expression, symbol);
 
-    return valid_type(previous_type, type, symbol, parentesesAberto);
+    return valid_type(expression, previous_type, type, symbol, qtdParentesesAberto);
 }
 
 // retorna o tipo correspondente ao simbolo passado
@@ -91,40 +98,71 @@ int check_type(char *expression, char symbol[])
 }
 
 // valida lexicamente o tipo correspondente do ultimo simbolo na expressao
-int valid_last_type(int type)
+int valid_last_type(int type, int qtdParentesesAberto)
 {
-    if(type != SYM_COMMAND && type != SYM_FLOAT && type != SYM_INTEGER)
+
+    if(type == SYM_BINARY_OPERATOR || type == SYM_UNARY_OPERATOR) {
+        printf("erro: apos o operador aritmetico faltou numero");
         return -1;
+    }
+
+    if(qtdParentesesAberto>0) {
+        printf("erro: faltou encerrar parenteses\n");
+        return -1;
+    }
+
+
+    if(type != SYM_COMMAND && type != SYM_FLOAT && type != SYM_INTEGER) {
+        printf("erro: faltou encerrar a expressão com um numero ou comando\n");
+        return -1;<3><enter><5><+><3><enter><5><+>
+    }
 
     return type;
 }
 
 // valida lexicamente o tipo correspondente ao simbolo na expressao
-int valid_type(int previous_type, int type, char symbol[], bool parentesesAberto)
+int valid_type(char *expression, int previous_type, int type, char symbol[], int qtdParentesesAberto)
 {
-    // Verificar se tem dois paranteses aberto
-    if(type == SYM_PARENTESES && strncasecmp("(", symbol, strlen(symbol)) == 0 && parentesesAberto)
-        type = -1;
 
-    // Verifica se fechou parenteses mas nao abriu ele
-    if(type == SYM_PARENTESES && strncasecmp(")", symbol, strlen(symbol)) == 0 && !parentesesAberto)
-        type = -1;
+    if(type == SYM_ERRO) {
+        printf("=> erro: simbolo nao reconhecido\n");
+        return -1;
+    }
+
+    // Verificar se tem parenteses aberto correspodente
+    if(type == SYM_PARENTESES && strncasecmp(")", symbol, strlen(symbol)) == 0 && qtdParentesesAberto <= 0) {
+        printf("=> erro: nao tem parenteses aberto correspondente\n");
+        return -1;
+    }
 
     // Verifica se nao colocou dois enters seguidos
-    if(previous_type == SYM_COMMAND && type != SYM_COMMAND)
-        type = -1;
+    if(type == SYM_COMMAND && ((int)(strlen(expression) / sizeof(char))) > 0) {
+        printf("=> erro: comando tem que ser utilizado no final\n");
+        return -1;
+    }
 
-    // Verifica se nao colocou dois operadores aritmeticos seguidos
-    if((previous_type == SYM_BINARY_OPERATOR || previous_type == SYM_UNARY_OPERATOR) && (type == SYM_BINARY_OPERATOR || type == SYM_UNARY_OPERATOR))
-        type = -1;
+    if(previous_type == SYM_UNARY_OPERATOR && (type == SYM_COMMAND || type == SYM_BINARY_OPERATOR || type == SYM_UNARY_OPERATOR)) {
+        printf("=> erro: operador aritmetico unario usado incorretamente");
+        return -1;
+    }
 
-    // Verifica se map colocou dois pontos flutuantes seguidos
-    if (previous_type == SYM_FLOAT&& type == SYM_FLOAT)
-        type = -1;
+
+    if(previous_type == SYM_BINARY_OPERATOR && (type == SYM_COMMAND || type == SYM_BINARY_OPERATOR)) {
+        printf("=> erro: operador aritmetico binario usado incorretamente");
+        return -1;
+    }
+
+    // Verifica se colocou dois pontos flutuantes seguidos
+    if (previous_type == SYM_FLOAT&& type == SYM_FLOAT){
+        printf("=> erro: mais de dois pontos flutuante em um numero\n");
+        return -1;
+    }
 
     // Verifica se nao comecou por um operador binario aritmetico
-    if (previous_type == -2 && type == SYM_BINARY_OPERATOR)
-        type = -1;
+    if (previous_type == -2 && type == SYM_BINARY_OPERATOR){
+        printf("=> erro: comecou por um operador binario\n");
+        return -1;
+    }
 
     return type;
 }

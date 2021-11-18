@@ -1,5 +1,5 @@
-#ifndef LEXICAL_ANALYZER_H_INCLUDED
-#define LEXICAL_ANALYZER_H_INCLUDED
+#ifndef ANALYZER_H_INCLUDED
+#define ANALYZER_H_INCLUDED
 
 #include <stdbool.h>
 
@@ -15,13 +15,13 @@ bool analyse(const char *);
 
 void print_type(char *, int);
 
-int get_type(char *, char *, int, bool);
+int get_type(char *, char *, int, int);
 
 int check_type(char *, char[]);
 
-int valid_last_type(int);
+int valid_last_type(int,int);
 
-int valid_type(int, int, char[], bool);
+int valid_type(char *,int, int, char[], int);
 
 int is_sym_number(char[], char[]);
 
@@ -35,4 +35,4 @@ bool is_number2(const char[]);
 
 bool get_symbol(char[], char[]);
 
-#endif // LEXICAL_ANALYZER_H_INCLUDED
+#endif // ANALYZER_H_INCLUDED

@@ -13,7 +13,7 @@
 
 #include "util.h"             // read_string
 #include "token.h"            // check_tokens
-#include "lexical_analyzer.h" // analyse
+#include "analyzer.h" // analyse
 
 int main()
 {
