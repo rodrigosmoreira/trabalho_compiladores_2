@@ -1,0 +1,34 @@
+# depslib dependency file v1.0
+1637196522 source:c:\users\suarez\desktop\geral\trabalho_compiladores_2\lexical_analyzer.c
+	"lexical_analyzer.h"
+	"token.h"
+	<stdio.h>
+	<string.h>
+
+1637196429 c:\users\suarez\desktop\geral\trabalho_compiladores_2\lexical_analyzer.h
+	<stdbool.h>
+
+1637193838 c:\users\suarez\desktop\geral\trabalho_compiladores_2\token.h
+	<stdbool.h>
+
+1637193356 source:c:\users\suarez\desktop\geral\trabalho_compiladores_2\main.c
+	<stdlib.h>
+	<stdio.h>
+	"util.h"
+	"token.h"
+	"lexical_analyzer.h"
+
+1632145879 c:\users\suarez\desktop\geral\trabalho_compiladores_2\util.h
+
+1632145879 source:c:\users\suarez\desktop\geral\trabalho_compiladores_2\util.c
+	"util.h"
+	<stdlib.h>
+	<ctype.h>
+	<stdio.h>
+
+1637194676 source:c:\users\suarez\desktop\geral\trabalho_compiladores_2\token.c
+	<stdio.h>
+	<string.h>
+	<strings.h>
+	"token.h"
+
